@@ -1,11 +1,14 @@
 package main
 
 import (
+	"golang.org/x/text/transform"
 	tb "gopkg.in/tucnak/telebot.v2"
+	"html"
 	"math/rand"
 	"strconv"
 	"strings"
 	"time"
+	"golang.org/x/text/unicode/norm"
 )
 
 type SendablePoll interface {
@@ -17,9 +20,14 @@ type Poll struct {
 	eventPicture string
 	eventText string
 	pollId string
-	results map[string]map[string]bool
+	results map[string]map[int]Vote
 	buttons map[string]tb.InlineButton
 	buttonsLayout [][]tb.InlineButton
+}
+
+type Vote struct {
+	voter *tb.User
+	vote bool
 }
 
 const btnYesId = "yes"
@@ -59,7 +67,7 @@ var plusTwoOptions = []string{"+2😯"}
 var plusThreeOptions = []string{"+3😲"}
 
 func (p Poll) GetText() string {
-	return "[" + "\u200b" + "](" + p.eventPicture + ")" + p.eventText + "\n" + p.pollResultsTemplate()
+	return "<a href='" + p.eventPicture + "'>\u200b</a>" + p.eventText + "\n" + p.pollResultsTemplate()
 }
 
 func (p Poll) GetLayout() [][]tb.InlineButton {
@@ -72,7 +80,7 @@ func NewPoll(picture string, pollId string, text string) *Poll {
 	poll.buttonsLayout = layout
 	poll.buttons = btns
 	poll.eventText = text
-	poll.results = make(map[string]map[string]bool)
+	poll.results = make(map[string]map[int]Vote)
 	return &poll
 }
 
@@ -86,8 +94,19 @@ func (p Poll) pollResultsTemplate() string {
 		"maybe" : &voteResult{0, []string{}},
 	}
 	for btnId, v := range p.results {
-		for username, userVote := range v {
-			if userVote == true {
+		for _, userVote := range v {
+			if userVote.vote == true {
+				var username string
+				if len(userVote.voter.Username) > 0 {
+					username = userVote.voter.Username
+				} else {
+					username = userVote.voter.FirstName + " " + userVote.voter.LastName
+				}
+
+				t := transform.Chain(norm.NFC)
+				username, _, _ = transform.String(t, username)
+				username = html.EscapeString(username)
+
 				switch btnId {
 				case btnYesId:
 					resultMap["yes"].Count += 1
@@ -109,9 +128,11 @@ func (p Poll) pollResultsTemplate() string {
 		}
 	}
 
-	return "*Придут* " + strconv.Itoa(resultMap["yes"].Count) + " | " + strings.Join(resultMap["yes"].Usernames, ", ") + "\n" +
-		"*Сомневаются* " + strconv.Itoa(resultMap["maybe"].Count) + " | " + strings.Join(resultMap["maybe"].Usernames, ", ") + "\n" +
-		"*Не придут* " + strconv.Itoa(resultMap["no"].Count) + " | " + strings.Join(resultMap["no"].Usernames, ", ")
+	resultsTemplate := "<b>Придут</b> " + strconv.Itoa(resultMap["yes"].Count) + " | " + strings.Join(resultMap["yes"].Usernames, ", ") + "\n" +
+		"<b>Сомневаются</b> " + strconv.Itoa(resultMap["maybe"].Count) + " | " + strings.Join(resultMap["maybe"].Usernames, ", ") + "\n" +
+		"<b>Не придут</b> " + strconv.Itoa(resultMap["no"].Count) + " | " + strings.Join(resultMap["no"].Usernames, ", ") + " "
+
+	return resultsTemplate
 }
 
 func selectRandomOption(reasons []string) string {
@@ -139,15 +160,15 @@ func (p Poll) createPollButtonsAndLayout() (map[string]tb.InlineButton, [][]tb.I
 	return buttonsMap, layout
 }
 
-func (p Poll) onVote(voterName string, buttonId string) {
+func (p Poll) onVote(voter *tb.User, buttonId string) {
 	originalButtonId := strings.Replace(buttonId, p.pollId, "", 1)
 	if p.results != nil {
 		for i, _ := range p.results {
-			p.results[i][voterName] = false
+			p.results[i][voter.ID] = Vote{voter, false}
 		}
 	}
 	if p.results[originalButtonId] == nil {
-		p.results[originalButtonId] = make(map[string]bool)
+		p.results[originalButtonId] = make(map[int]Vote)
 	}
-	p.results[originalButtonId][voterName] = true;
+	p.results[originalButtonId][voter.ID] = Vote{voter, true};
 }

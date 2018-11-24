@@ -40,6 +40,9 @@ func main() {
 	gocron.Every(1).Monday().At("09:00").Do(checkAndPostPoll, picturer, checker, bot, config, checkOffsetForWeekday)
 	gocron.Every(1).Wednesday().At("09:00").Do(checkAndPostPoll, picturer, checker, bot, config, checkOffsetForWeekday)
 	gocron.Start()
+	if config.CheckAndSendOnStart {
+		checkAndPostPoll(picturer, checker, bot, config, checkOffsetForWeekday)
+	}
 	bot.Tbot.Start()
 }
 

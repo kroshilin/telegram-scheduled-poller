@@ -19,6 +19,7 @@ type Config struct {
 	Telegram TelegramConfig
 	Shutterstock    ShutterstockConfig
 	PollRecipientId string
+	CheckAndSendOnStart bool
 }
 
 type GoogleConfig struct {
@@ -50,6 +51,7 @@ func loadEnvConfiguration() Config {
 	shtLogin := os.Getenv("SHUTTERSTOCK_LOGIN")
 	shtPassword := os.Getenv("SHUTTERSTOCK_PASSWORD")
 	shtTags := os.Getenv("TAGS_FOR_SHUTTERSTOCK")
+	chk := os.Getenv("CHECK_AND_SEND_ON_START") == "1"
 
 	return Config{
 		GoogleConfig{
@@ -61,5 +63,6 @@ func loadEnvConfiguration() Config {
 		TelegramConfig{token},
 		ShutterstockConfig{shtLogin, shtPassword, shtTags},
 		os.Getenv("POLL_RECIPIENT_ID"),
+		chk,
 	}
 }

@@ -34,19 +34,13 @@ func NewBot(Token string) (*Bot, error) {
 }
 
 func (b Bot) addButtonsHandlers(buttons map[string]tb.InlineButton, callback func(*tb.User, string)) {
-	// Command: /start <PAYLOAD>
+	//Command: /info <PAYLOAD>
 	//b.Tbot.Handle("/start", func(m *tb.Message) {
 	//	if !m.Private() {
 	//		return
 	//	}
 	//
-	//	photo := &tb.Photo{
-	//		Caption: b.EventText,
-	//		File:    tb.FromURL(b.EventPicture),
-	//	}
-	//	b.Tbot.Send(m.Sender, photo, &tb.ReplyMarkup{
-	//		InlineKeyboard: inlineKeys,
-	//	})
+	//	b.Tbot.Send(m.Sender, "heeeey")
 	//})
 
 	for _, v := range buttons {

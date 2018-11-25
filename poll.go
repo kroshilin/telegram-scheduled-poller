@@ -106,6 +106,7 @@ func (p Poll) pollResultsTemplate() string {
 				t := transform.Chain(norm.NFC)
 				username, _, _ = transform.String(t, username)
 				username = html.EscapeString(username)
+				username = "<a href='tg://user?id=" + strconv.Itoa(userVote.voter.ID) + "'>" + username + "</a>"
 
 				switch btnId {
 				case btnYesId:

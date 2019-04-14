@@ -31,7 +31,7 @@ type thumb struct {
 
 /** Accepts search string and returns link to picture from shutterstock search **/
 func (p picturer) GiveMePictureOf(query string) string {
-	req, err := http.NewRequest("GET", "https://api.shutterstock.com/v2/images/search?sort=random&exclude_keywords=football,soccer,model,basketball,fan&image_type=photo&query=" + query, nil)
+	req, err := http.NewRequest("GET", "https://api.shutterstock.com/v2/images/search?orientation=horizontal&people_age=20s&sort=random&image_type=photo&query=" + query, nil)
 	if err != nil {
 		// handle error
 	}

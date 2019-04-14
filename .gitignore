@@ -1,4 +1,5 @@
 .env
+.env.test
 private.key
 .idea
 .DS_Store

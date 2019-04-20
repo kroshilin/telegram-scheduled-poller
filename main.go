@@ -2,11 +2,12 @@ package main
 
 import (
 	"github.com/jasonlvhit/gocron"
+	tb "gopkg.in/tucnak/telebot.v2"
 	"math/rand"
 	"net/http"
 	"os"
+	"strings"
 	"time"
-	tb "gopkg.in/tucnak/telebot.v2"
 )
 
 type Recipient struct {
@@ -42,7 +43,9 @@ func main() {
 	gocron.Every(1).Saturday().At("15:00").Do(checkAndPostPoll, picturer, checker, bot, config, checkOffsetForWeekend)
 	gocron.Every(1).Monday().At("09:00").Do(checkAndPostPoll, picturer, checker, bot, config, checkOffsetForWeekday)
 	gocron.Every(1).Wednesday().At("09:00").Do(checkAndPostPoll, picturer, checker, bot, config, checkOffsetForWeekday)
-	//checkAndPostPoll(picturer, checker, bot, config, checkOffsetForWeekday)
+	if config.CheckAndPostOnStart {
+		checkAndPostPoll(picturer, checker, bot, config, checkOffsetForWeekday)
+	}
 	gocron.Start()
 	bot.Tbot.Start()
 }
@@ -54,7 +57,7 @@ func checkAndPostPoll(picturer picturer, checker EventsChecker, bot *Bot, config
 
 	membersList := []string{}
 	if holiday != nil {
-		date, _ := time.Parse("2006-01-02", holiday.Start.Date)
+		date, _ := time.Parse(time.RFC3339, holiday.Start.Date)
 
 		if date.Weekday().String() == "Sunday" || date.Weekday().String() == "Saturday" {
 			holiday = nil
@@ -63,8 +66,7 @@ func checkAndPostPoll(picturer picturer, checker EventsChecker, bot *Bot, config
 		}
 	} else {
 		if volleyEvent != nil {
-			date, _ := time.Parse("2006-01-02", volleyEvent.Start.Date)
-			if date.Weekday().String() != "Sunday" && date.Weekday().String() != "Saturday" {
+			if  !strings.Contains(strings.ToLower(volleyEvent.Description), "пляж") && !strings.Contains(strings.ToLower(volleyEvent.Summary), "пляж") {
 				membersList = config.clubMembers
 			}
 		}

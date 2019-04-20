@@ -95,8 +95,7 @@ func (p Poll) GetText() string {
 		membersListText = "\nДо " + p.pollOpensForEveryoneAt.Format("15:04") +
 			" голосуют владельцы клубныx карт, остальные занимают очередь. Владельцы карт: " + strings.Join(membersList, ", ") + "\n-----------"
 	}
-	return "<a href='" + p.eventPicture + "'>\u200b</a>" + p.eventText + "\n \nЛимит игроков: " +
-		strconv.Itoa(p.playersLimit) + membersListText + "\n" + p.pollResultsTemplate(p.mapPollResults())
+	return "<a href='" + p.eventPicture + "'>\u200b</a>" + p.eventText + "\n " + membersListText + "\n" + p.pollResultsTemplate(p.mapPollResults())
 }
 
 func (p Poll) GetLayout() [][]tb.InlineButton {

@@ -17,6 +17,7 @@ type Config struct {
 	clubMembers []string
 	playersLimit int
 	pollOpensForEveryoneBeforeEnd int
+	CheckAndPostOnStart bool
 }
 
 type GoogleConfig struct {
@@ -54,6 +55,7 @@ func loadEnvConfiguration(isTest bool) Config {
 	clubMembers := strings.Split(os.Getenv("CLUB_MEMBERS"), ",")
 	pollOpensForEveryoneBeforeEnd, _ := strconv.Atoi(os.Getenv("OPEN_POLL_FOR_EVERYONE_BEFORE_END"))
 	playersLimit, _ := strconv.Atoi(os.Getenv("PLAYERS_LIMIT"))
+	checkAndPostOnStart := os.Getenv("CHECK_AND_POST_ON_START") == "1"
 
 	return Config{
 		GoogleConfig{
@@ -68,5 +70,6 @@ func loadEnvConfiguration(isTest bool) Config {
 		clubMembers,
 		playersLimit,
 		pollOpensForEveryoneBeforeEnd,
+		checkAndPostOnStart,
 	}
 }

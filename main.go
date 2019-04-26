@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/jasonlvhit/gocron"
+	"google.golang.org/api/calendar/v3"
 	tb "gopkg.in/tucnak/telebot.v2"
 	"math/rand"
 	"net/http"
@@ -66,7 +67,7 @@ func checkAndPostPoll(picturer picturer, checker EventsChecker, bot *Bot, config
 		}
 	} else {
 		if volleyEvent != nil {
-			if  !strings.Contains(strings.ToLower(volleyEvent.Description), "пляж") && !strings.Contains(strings.ToLower(volleyEvent.Summary), "пляж") {
+			if  !checkIfItIsBeachVolley(volleyEvent) {
 				membersList = config.clubMembers
 			}
 		}
@@ -83,12 +84,16 @@ func checkAndPostPoll(picturer picturer, checker EventsChecker, bot *Bot, config
 		postPoll(t.Format("01/02 15:04") + "\n" + volleyEvent.Description, picture, bot, config.PollRecipientId, membersList, config.playersLimit, opensAt)
 	}
 
-	if holiday != nil {
+	if holiday != nil && volleyEvent != nil && !checkIfItIsBeachVolley(volleyEvent) {
 		// post sad message about cyprus holiday
 		bot.PostMessage(cyprusHolyday, Recipient{config.PollRecipientId}, &tb.SendOptions{
 			ParseMode: tb.ParseMode(tb.ModeHTML),
 		})
 	}
+}
+
+func checkIfItIsBeachVolley(event *calendar.Event) bool {
+	return strings.Contains(strings.ToLower(event.Description), "пляж") || strings.Contains(strings.ToLower(event.Summary), "пляж")
 }
 
 func postPoll(text string, picture string, bot *Bot, recipient string, membersList []string,playersLimit int, pollOpensForEveryoneAt time.Time) *Poll {

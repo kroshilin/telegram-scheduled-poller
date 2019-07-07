@@ -1,41 +1,44 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"io/ioutil"
+	"log"
 	"net/http"
-	"strings"
 )
 
 type picturer struct {
-	Login, Password string
 	Client *http.Client
+	BaseUrl string
 }
 
 type searchResponse struct {
-	Page   int      `json:"page"`
-	Data []image `json:"data"`
+	Data randomPicture `json:"data"`
+}
+
+type randomPicture struct {
+	Image image  `json:"randomPicture"`
 }
 
 type image struct {
-	Assets imageQualities `json:"assets"`
+	ContentUrl string `json:"contentUrl"`
 }
 
-type imageQualities struct {
-	Thumb thumb `json:"huge_thumb"`
-}
-
-type thumb struct {
-	Url string `json:"url"`
-}
-
-/** Accepts search string and returns link to picture from shutterstock search **/
 func (p picturer) GiveMePictureOf(query string) string {
-	req, err := http.NewRequest("GET", "https://api.shutterstock.com/v2/images/search?orientation=horizontal&people_age=20s&sort=random&image_type=photo&query=" + query, nil)
+	requestBody, _ := json.Marshal(map[string]string{
+		"query": "{ randomPicture(tag:\"" + query + "\") {contentUrl} }",
+		"operationName": "",
+		"variables": "",
+	});
+	req, err := http.NewRequest("POST", p.BaseUrl + "/graphql/", bytes.NewBuffer(requestBody))
+	log.Println(p.BaseUrl)
 	if err != nil {
 		// handle error
 	}
-	req.SetBasicAuth(p.Login, p.Password)
+	req.Header = map[string][]string{
+		"Content-Type": {"application/json"},
+	}
 	resp, err := p.Client.Do(req)
 	if err != nil {
 		// handle error
@@ -44,7 +47,5 @@ func (p picturer) GiveMePictureOf(query string) string {
 	resp.Body.Close()
 	data := searchResponse{}
 	json.Unmarshal(body, &data)
-	img := strings.Replace(data.Data[0].Assets.Thumb.Url, "image-photo", "z", 1)
-	img = strings.Replace(img, "260nw-", "", 1)
-	return img
+	return data.Data.Image.ContentUrl
 }

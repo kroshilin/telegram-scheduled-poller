@@ -34,7 +34,7 @@ func main() {
 	config := loadEnvConfiguration(false)
 
 	bot, _ := NewBot(config.Telegram.Token);
-	picturer := picturer{config.Shutterstock.Login, config.Shutterstock.Password, &http.Client{}}
+	picturer := picturer{&http.Client{}, config.PicturerApi}
 	calendarService, _ := initCalendarService(config.Google.Email, config.Google.Key)
 	checker := EventsChecker{calendarService}
 
@@ -52,7 +52,7 @@ func main() {
 }
 
 func checkAndPostPoll(picturer picturer, checker EventsChecker, bot *Bot, config Config, checkOffset time.Duration) {
-	picture := picturer.GiveMePictureOf(config.Shutterstock.Tags)
+	picture := picturer.GiveMePictureOf(config.PictureTags)
 	volleyEvent, _ := checker.getEventForDate(config.Google.CalendarId, time.Now().Add(checkOffset))
 	holiday, _ := checker.getEventForDate(config.Google.HolidaysCalendarId, time.Now().Add(checkOffset))
 

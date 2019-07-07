@@ -187,8 +187,8 @@ func setupFullPoll(members []string, fake bool) (*Poll, *Bot)  {
 	if fake {
 		bot.Tbot = TeleBotMock{}
 	}
-	picturer := picturer{config.Shutterstock.Login, config.Shutterstock.Password, &http.Client{}}
-	picture := picturer.GiveMePictureOf(config.Shutterstock.Tags)
+	picturer := picturer{&http.Client{}, config.PicturerApi}
+	picture := picturer.GiveMePictureOf(config.PictureTags)
 
 	t,_ := time.Parse(time.RFC3339, time.Now().Format(time.RFC3339))
 	opensIn := config.pollOpensForEveryoneBeforeEnd

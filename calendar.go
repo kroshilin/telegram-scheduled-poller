@@ -23,7 +23,7 @@ func (e EmptyEventError) Error() string {
 
 //check if there is any event for date
 func (e EventsChecker) getEventForDate(calendarId string, dateTime time.Time) (*calendar.Event, error) {
-	beginOfDay := time.Date(dateTime.Year(), dateTime.Month(), dateTime.Day(), 0, 0, 0, 0, dateTime.Location())
+	beginOfDay := time.Date(dateTime.Year(), dateTime.Month(), dateTime.Day(), 3, 0, 0, 0, dateTime.Location())
 	endOfDay := time.Date(dateTime.Year(), dateTime.Month(), dateTime.Day(), 23, 59, 0, 0, dateTime.Location())
 	formattedStart := beginOfDay.Format(time.RFC3339)
 	formattedEnd := endOfDay.Format(time.RFC3339)

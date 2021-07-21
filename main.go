@@ -40,7 +40,6 @@ func main() {
 
 	checkOffsetForWeekday, _ := time.ParseDuration("0h0m0s")
 	gocron.Every(1).Tuesday().At("09:00").Do(checkAndPostPoll, picturer, checker, bot, config, checkOffsetForWeekday)
-	gocron.Every(1).Friday().At("09:00").Do(checkAndPostPoll, picturer, checker, bot, config, checkOffsetForWeekday)
 	if config.CheckAndPostOnStart {
 		checkAndPostPoll(picturer, checker, bot, config, checkOffsetForWeekday)
 	}

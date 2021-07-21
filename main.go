@@ -38,12 +38,10 @@ func main() {
 	calendarService, _ := initCalendarService(config.Google.Email, config.Google.Key)
 	checker := EventsChecker{calendarService}
 
-	checkOffsetForWeekend, _ := time.ParseDuration("12h10m10s") // means that event will be checked for next calendar day
 	checkOffsetForWeekday, _ := time.ParseDuration("0h0m0s")
-	gocron.Every(1).Friday().At("15:00").Do(checkAndPostPoll, picturer, checker, bot, config, checkOffsetForWeekend)
-	gocron.Every(1).Saturday().At("15:00").Do(checkAndPostPoll, picturer, checker, bot, config, checkOffsetForWeekend)
-	gocron.Every(1).Monday().At("09:00").Do(checkAndPostPoll, picturer, checker, bot, config, checkOffsetForWeekday)
-	gocron.Every(1).Wednesday().At("09:00").Do(checkAndPostPoll, picturer, checker, bot, config, checkOffsetForWeekday)
+	// change shedule days here
+	gocron.Every(1).Tuesday().At("09:00").Do(checkAndPostPoll, picturer, checker, bot, config, checkOffsetForWeekday)
+	gocron.Every(1).Thursday().At("09:00").Do(checkAndPostPoll, picturer, checker, bot, config, checkOffsetForWeekday)
 	if config.CheckAndPostOnStart {
 		checkAndPostPoll(picturer, checker, bot, config, checkOffsetForWeekday)
 	}
